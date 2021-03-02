@@ -45,7 +45,7 @@ wss.on("connection", (ws) => {
     const t = new Turtle(name, ws)
     turtles.push(t);
     io.write(`\nTurtle ${name} connected\n`);
-    if (active !== null)
+    if (active === null)
       active = t;
     ws.once("close", () => {
       turtles.filter((turtle) => turtle.name !== name);
