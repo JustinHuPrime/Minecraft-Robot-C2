@@ -73,6 +73,7 @@ async function commandLoop(): Promise<void> {
 
       const tokens = line.split(/\s+/);
       switch (tokens[0]) {
+        // turtle management (select)
         case "select": {
           if (tokens.length !== 2) {
             io.write("select expects one argument - the name of the turtle to select\n");
@@ -88,6 +89,71 @@ async function commandLoop(): Promise<void> {
           active = selected;
           break;
         }
+        // movement (forward, back, up, down, left, right)
+        case "forward":
+        case "back":
+        case "up":
+        case "down": {
+          if (tokens.length !== 1 && tokens.length !== 2) {
+            io.write(`${tokens[0]} expects zero or one arguments\n`);
+            continue;
+          }
+          if (active === null) {
+            io.write(`${tokens[0]} expects an active turtle\n`);
+            continue;
+          }
+
+          if (tokens.length === 1) {
+            active.ws.send(`turtle.${tokens[0]}()`);
+            break;
+          }
+
+          const count = Number.parseInt(tokens[1]);
+          if (isNaN(count)) {
+            io.write(`invalid count '${tokens[1]}'`);
+            continue;
+          }
+
+          for (let idx = count; idx > 0; --idx) {
+            active.ws.send(`turtle.${tokens[0]}()`);
+            break;
+          }
+          break;
+        }
+        case "left": {
+          if (tokens.length !== 1) {
+            io.write("left expects zero arguments\n");
+            continue;
+          }
+          if (active === null) {
+            io.write("left expects an active turtle\n");
+            continue;
+          }
+
+          active.ws.send(`turtle.turnLeft()`);
+          break;
+        }
+        case "right": {
+          if (tokens.length !== 1) {
+            io.write("left expects zero arguments\n");
+            continue;
+          }
+          if (active === null) {
+            io.write("left expects an active turtle\n");
+            continue;
+          }
+
+          active.ws.send(`turtle.turnRight()`);
+          break;
+        }
+        // world interaction (dig, place, drop, attack, suck, inspect)
+        case "dig": { }
+        case "place": { }
+        case "drop": { }
+        case "attack": { }
+        case "suck": { }
+        case "inspect": { }
+        // inventory management (display, select, fuel, refuel, transfer, equip, craft)
         case "inventory": {
           if (tokens.length !== 1) {
             io.write("inventory expects no arguments\n");
@@ -124,7 +190,7 @@ async function commandLoop(): Promise<void> {
             io.write("slot expects an active turtle\n");
             continue;
           }
-          
+
           const slot = Number.parseInt(tokens[1]);
           if (isNaN(slot)) {
             io.write(`invalid slot '${tokens[1]}'`);
@@ -134,6 +200,41 @@ async function commandLoop(): Promise<void> {
           active.ws.send(`turtle.select(${slot})`);
           break;
         }
+        case "fuel": { }
+        case "refuel": { }
+        case "transfer": {
+          if (tokens.length !== 2 && tokens.length !== 3) {
+            io.write("transfer expects one or two arguments\n");
+            continue;
+          }
+          if (active === null) {
+            io.write("transfer expects an active turtle\n");
+            continue;
+          }
+
+          const destination = Number.parseInt(tokens[1]);
+          if (isNaN(destination)) {
+            io.write(`invalid slot '${tokens[1]}`);
+            continue;
+          }
+
+          if (tokens.length === 2) {
+            active.ws.send(`turtle.transferTo(${destination})`);
+            break;
+          }
+
+          const count = Number.parseInt(tokens[2]);
+          if (isNaN(count)) {
+            io.write(`invalid count '${tokens[2]}'`);
+            continue;
+          }
+
+          active.ws.send(`turtle.transferTo(${destination}, ${count})`);
+          break;
+        }
+        case "equip": { }
+        case "craft": { }
+        // miscellaneous (exec, exit)
         case "exec": {
           if (tokens.length < 2) {
             io.write("exec expects a string - the code to execute\n");
