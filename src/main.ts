@@ -452,7 +452,7 @@ async function commandLoop(): Promise<void> {
           active.ws.send(`turtle.craft(${count})`);
           break;
         }
-        // miscellaneous (exec, exit)
+        // miscellaneous (exec, help, list, exit)
         case "exec": {
           if (tokens.length < 2) {
             io.write("exec expects a string - the code to execute\n");
@@ -468,6 +468,37 @@ async function commandLoop(): Promise<void> {
 
           active.ws.send(message);
           io.write(`${await getReply()}\n`);
+          break;
+        }
+        case "help": {
+          io.write("select <turtle name>\n\tmarks turtle as active turtle\n");
+          io.write("forward|back|up|down [n]\n\tmove in given direction n or one blocks\n");
+          io.write("left|right\n\tturn in given direction\n");
+          io.write("dig|place|attack|suck [up|down]\n\tinteract with the world in the given direction, or forwards, if none given\n");
+          io.write("drop [up|down]\n\tdrop items from inventory in given direction, or forwards, if none given\n");
+          io.write("inspect [up|down]\n\tget information about the world in the given direction, or forwards, if none given\n");
+          io.write("tunnel <n> [up|down]\n\tdig an n-long tunnel in the given direction, or forwards, if none given\n");
+          io.write("inventory\n\tdisplay information about turtle inventory\n");
+          io.write("slot <n>\n\tselect turtle inventory slot n\n");
+          io.write("fuel\n\tdisplay turtle fuel status\n");
+          io.write("refuel [limit]\n\trefuel the turtle using at most the given number of items (uses whole stack if none given)\n");
+          io.write("transfer <destination> [count]\n\ttransfers count (or whole stack if not given) to destination slot\n");
+          io.write("equip <left|right>\n\tswaps the current slot with the left or right side equipment\n");
+          io.write("craft [limit]\n\tcrafts up to limit (or as many as possible, if not given) items\n");
+          io.write("exec <lua code>\n\truns some lua code as the body of a zero-arg function, and prints the return value, if any\n");
+          io.write("help [args...]\n\tdisplays help text\n");
+          io.write("list\n\tlists all connected turtles\n");
+          io.write("exit\n\tgracefully closes connections to turtles and quits the program\n");
+          break;
+        }
+        case "list": {
+          for (const turtle of turtles) {
+            if (turtle === active)
+              io.write("*");
+            else
+              io.write(" ");
+            io.write(` ${turtle.name} (${turtle.status === TurtleStatus.BUSY ? "BUSY" : "IDLE"})\n`);
+          }
           break;
         }
         case "exit": {
