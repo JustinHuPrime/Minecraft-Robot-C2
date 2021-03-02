@@ -51,13 +51,19 @@ wss.on("connection", (ws) => {
     const t = new Turtle(name, ws)
     turtles.push(t);
     process.stdout.write(`\nTurtle ${name} connected\n`);
-    if (active === null)
+    if (active === null) {
       active = t;
+      io.setPrompt(`${active.name}> `);
+    }
+    io.prompt();
     ws.once("close", () => {
       turtles.filter((turtle) => turtle.name !== name);
-      if (active !== null && active.name === name)
+      if (active !== null && active.name === name) {
         active = null;
+        io.setPrompt(`> `);
+      }
       process.stdout.write(`\nTurtle ${name} disconnected\n`);
+      io.prompt();
     });
   });
 });
@@ -96,14 +102,18 @@ function assign(): Turtle {
   const t = active;
   t.status = TurtleStatus.BUSY;
   active = null;
+  io.setPrompt(`> `);
   return t;
 }
 
 function release(t: Turtle) {
   t.status = TurtleStatus.IDLE;
   process.stdout.write(`\n${t.name} done task\n`);
-  if (active === null)
+  if (active === null) {
     active = t;
+    io.setPrompt(`${active.name}> `);
+  }
+  io.prompt();
 }
 
 async function repeat(count: number, command: string): Promise<void> {
@@ -144,6 +154,7 @@ async function commandLoop(): Promise<void> {
           }
 
           active = selected;
+          io.setPrompt(`${active.name}> `);
           break;
         }
         // movement (forward, back, up, down, left, right)
