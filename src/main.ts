@@ -140,7 +140,8 @@ async function commandLoop(): Promise<void> {
 
           for (const turtle of turtles)
             turtle.ws.close();
-          return;
+          wss.close();
+          process.exit(0);
         }
         default: {
           io.write(`no such command ${tokens[0]}\n`);
