@@ -115,6 +115,25 @@ async function commandLoop(): Promise<void> {
           }
           break;
         }
+        case "slot": {
+          if (tokens.length !== 2) {
+            io.write("slot expects one argument\n");
+            continue;
+          }
+          if (active === null) {
+            io.write("slot expects an active turtle\n");
+            continue;
+          }
+          
+          const slot = Number.parseInt(tokens[1]);
+          if (isNaN(slot)) {
+            io.write(`invalid slot '${tokens[1]}'`);
+            continue;
+          }
+
+          active.ws.send(`turtle.select(${slot})`);
+          break;
+        }
         case "exec": {
           if (tokens.length < 2) {
             io.write("exec expects a string - the code to execute\n");
