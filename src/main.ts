@@ -116,7 +116,7 @@ async function commandLoop(): Promise<void> {
         }
       }
     } catch (e) {
-      io.write(`Error: ${e}\n`);
+      io.write(`${e}\n`);
     }
   }
 }
