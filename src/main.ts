@@ -37,12 +37,12 @@ wss.on("connection", (ws) => {
   });
 });
 
-async function getReply(): Promise<string> {
+async function getReply(turtle: Turtle | undefined = undefined): Promise<string> {
   if (active === null)
     return Promise.reject(new Error("no selected turtle"));
 
   return new Promise<string>((resolve, reject) => {
-    const t = (active as Turtle);
+    const t = turtle === undefined ? (active as Turtle) : turtle;
     const closeCallback = () => {
       t.ws.off("error", errorCallback);
       t.ws.off("message", messageCallback);
@@ -64,6 +64,17 @@ async function getReply(): Promise<string> {
   });
 }
 
+async function repeat(count: number, command: string): Promise<void> {
+  const t = (active as Turtle);
+  t.status = TurtleStatus.BUSY;
+  active = null;
+
+  for (let idx = count; idx > 0; --idx) {
+    t.ws.send(command);
+    getReply(t);
+  }
+}
+
 async function commandLoop(): Promise<void> {
   while (true) {
     try {
@@ -83,6 +94,10 @@ async function commandLoop(): Promise<void> {
           const selected = turtles.find((turtle) => turtle.name === tokens[1]);
           if (selected === undefined) {
             io.write(`no such turtle ${tokens[1]}\n`);
+            continue;
+          }
+          if (selected.status === TurtleStatus.BUSY) {
+            io.write("turtle is busy - cannot select");
             continue;
           }
 
@@ -146,7 +161,7 @@ async function commandLoop(): Promise<void> {
           active.ws.send(`turtle.turnRight()`);
           break;
         }
-        // world interaction (dig, place, drop, attack, suck, inspect)
+        // world interaction (dig, tunnel, place, drop, attack, suck, inspect)
         case "dig":
         case "place":
         case "drop":
@@ -201,6 +216,42 @@ async function commandLoop(): Promise<void> {
               }
               case "down": {
                 active.ws.send("local a, b = turtle.inspectDown(); return b");
+                break;
+              }
+              default: {
+                io.write(`invalid up/down modifier: ${tokens[1]}`);
+                continue;
+              }
+            }
+          }
+          break;
+        }
+        case "tunnel": {
+          if (tokens.length !== 2 && tokens.length !== 3) {
+            io.write("tunnel expects one or two arguments\n");
+            continue;
+          }
+          if (active === null) {
+            io.write("tunnel expects an active turtle\n");
+            continue;
+          }
+
+          const len = Number.parseInt(tokens[1]);
+          if (isNaN(len)) {
+            io.write(`invalid tunnel length '${tokens[1]}'`);
+            continue;
+          }
+
+          if (tokens.length === 2) {
+            repeat(len, "turtle.dig(); turtle.forward()");
+          } else {
+            switch (tokens[2]) {
+              case "up": {
+                repeat(len, "turtle.digUp(); turtle.up()");
+                break;
+              }
+              case "down": {
+                repeat(len, "turtle.digDown(); turtle.down()");
                 break;
               }
               default: {
@@ -329,7 +380,7 @@ async function commandLoop(): Promise<void> {
           active.ws.send(`turtle.transferTo(${destination}, ${count})`);
           break;
         }
-        case "equip": { 
+        case "equip": {
           if (tokens.length !== 2) {
             io.write("equip expects one argument\n");
             continue;
@@ -355,7 +406,7 @@ async function commandLoop(): Promise<void> {
           }
           break;
         }
-        case "craft": { 
+        case "craft": {
           if (tokens.length !== 2) {
             io.write("craft expects one argument\n");
             continue;
