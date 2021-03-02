@@ -147,12 +147,70 @@ async function commandLoop(): Promise<void> {
           break;
         }
         // world interaction (dig, place, drop, attack, suck, inspect)
-        case "dig": { }
-        case "place": { }
-        case "drop": { }
-        case "attack": { }
-        case "suck": { }
-        case "inspect": { }
+        case "dig":
+        case "place":
+        case "drop":
+        case "attack":
+        case "suck": {
+          if (tokens.length !== 1 && tokens.length !== 2) {
+            io.write(`${tokens[0]} expects zero or one arguments\n`);
+            continue;
+          }
+          if (active === null) {
+            io.write(`${tokens[0]} expects an active turtle\n`);
+            continue;
+          }
+
+          if (tokens.length === 1) {
+            active.ws.send(`turtle.${tokens[0]}()`);
+          } else {
+            switch (tokens[1]) {
+              case "up": {
+                active.ws.send(`turtle.${tokens[0]}Up()`);
+                break;
+              }
+              case "down": {
+                active.ws.send(`turtle.${tokens[0]}Down()`);
+                break;
+              }
+              default: {
+                io.write(`invalid up/down modifier: ${tokens[1]}`);
+                continue;
+              }
+            }
+          }
+          break;
+        }
+        case "inspect": {
+          if (tokens.length !== 1 && tokens.length !== 2) {
+            io.write("inspect expects zero or one arguments\n");
+            continue;
+          }
+          if (active === null) {
+            io.write("inspect expects an active turtle\n");
+            continue;
+          }
+
+          if (tokens.length === 1) {
+            active.ws.send("local a, b = turtle.inspect(); return b");
+          } else {
+            switch (tokens[1]) {
+              case "up": {
+                active.ws.send("local a, b = turtle.inspectUp(); return b");
+                break;
+              }
+              case "down": {
+                active.ws.send("local a, b = turtle.inspectDown(); return b");
+                break;
+              }
+              default: {
+                io.write(`invalid up/down modifier: ${tokens[1]}`);
+                continue;
+              }
+            }
+          }
+          break;
+        }
         // inventory management (display, select, fuel, refuel, transfer, equip, craft)
         case "inventory": {
           if (tokens.length !== 1) {
@@ -200,8 +258,47 @@ async function commandLoop(): Promise<void> {
           active.ws.send(`turtle.select(${slot})`);
           break;
         }
-        case "fuel": { }
-        case "refuel": { }
+        case "fuel": {
+          if (tokens.length !== 1) {
+            io.write("fuel expects no arguments\n");
+            continue;
+          }
+          if (active === null) {
+            io.write("fuel requires an active turtle\n");
+            continue;
+          }
+
+          active.ws.send("return turtle.getFuelLevel()");
+          const level = Number.parseInt(await getReply());
+          active.ws.send("return turtle.getFuelLimit()");
+          const limit = Number.parseInt(await getReply());
+          io.write(`Fuel: ${level}/${limit}`);
+          break;
+        }
+        case "refuel": {
+          if (tokens.length !== 1 && tokens.length !== 2) {
+            io.write("refuel expects zero or one arguments\n");
+            continue;
+          }
+          if (active === null) {
+            io.write("refuel expects an active turtle\n");
+            continue;
+          }
+
+          if (tokens.length === 1) {
+            active.ws.send(`turtle.refuel()`);
+            break;
+          }
+
+          const count = Number.parseInt(tokens[2]);
+          if (isNaN(count)) {
+            io.write(`invalid count '${tokens[2]}'`);
+            continue;
+          }
+
+          active.ws.send(`turtle.refuel(${count})`);
+          break;
+        }
         case "transfer": {
           if (tokens.length !== 2 && tokens.length !== 3) {
             io.write("transfer expects one or two arguments\n");
@@ -232,8 +329,51 @@ async function commandLoop(): Promise<void> {
           active.ws.send(`turtle.transferTo(${destination}, ${count})`);
           break;
         }
-        case "equip": { }
-        case "craft": { }
+        case "equip": { 
+          if (tokens.length !== 2) {
+            io.write("equip expects one argument\n");
+            continue;
+          }
+          if (active === null) {
+            io.write("equip expects an active turtle\n");
+            continue;
+          }
+
+          switch (tokens[1]) {
+            case "left": {
+              active.ws.send("turtle.equipLeft()");
+              break;
+            }
+            case "right": {
+              active.ws.send("turtle.equipRight()");
+              break;
+            }
+            default: {
+              io.write(`invalid left/right modifier: ${tokens[1]}`);
+              continue;
+            }
+          }
+          break;
+        }
+        case "craft": { 
+          if (tokens.length !== 2) {
+            io.write("craft expects one argument\n");
+            continue;
+          }
+          if (active === null) {
+            io.write("craft expects an active turtle\n");
+            continue;
+          }
+
+          const count = Number.parseInt(tokens[2]);
+          if (isNaN(count)) {
+            io.write(`invalid count '${tokens[2]}'`);
+            continue;
+          }
+
+          active.ws.send(`turtle.craft(${count})`);
+          break;
+        }
         // miscellaneous (exec, exit)
         case "exec": {
           if (tokens.length < 2) {
