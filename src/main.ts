@@ -42,9 +42,25 @@ async function getReply(): Promise<string> {
     return Promise.reject(new Error("no selected turtle"));
 
   return new Promise<string>((resolve, reject) => {
-    (active as Turtle).ws.once("error", reject);
-    (active as Turtle).ws.once("close", () => reject(new Error("connection closed")));
-    (active as Turtle).ws.once("message", resolve);
+    const t = (active as Turtle);
+    const closeCallback = () => {
+      t.ws.off("error", errorCallback);
+      t.ws.off("message", messageCallback);
+      reject(new Error("connection closed"));
+    }
+    const errorCallback = (e: Error) => {
+      t.ws.off("close", closeCallback);
+      t.ws.off("message", messageCallback);
+      reject(e);
+    };
+    const messageCallback = (msg: string) => {
+      t.ws.off("error", errorCallback);
+      t.ws.off("close", closeCallback);
+      resolve(msg);
+    }
+    t.ws.once("error", errorCallback);
+    t.ws.once("close", closeCallback);
+    t.ws.once("message", messageCallback);
   });
 }
 
