@@ -215,14 +215,17 @@ async function commandLoop(): Promise<void> {
 
           if (tokens.length === 1) {
             active.ws.send("local a, b = turtle.inspect(); return b");
+            io.write(`${await getReply()}\n`);
           } else {
             switch (tokens[1]) {
               case "up": {
                 active.ws.send("local a, b = turtle.inspectUp(); return b");
+                io.write(`${await getReply()}\n`);
                 break;
               }
               case "down": {
                 active.ws.send("local a, b = turtle.inspectDown(); return b");
+                io.write(`${await getReply()}\n`);
                 break;
               }
               default: {
