@@ -43,6 +43,7 @@ async function getReply(): Promise<string> {
 
   return new Promise<string>((resolve, reject) => {
     (active as Turtle).ws.once("error", reject);
+    (active as Turtle).ws.once("close", () => reject(new Error("connection closed")));
     (active as Turtle).ws.once("message", resolve);
   });
 }
