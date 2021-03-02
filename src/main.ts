@@ -137,7 +137,7 @@ async function commandLoop(): Promise<void> {
           } else {
             for (let idx = count; idx > 0; --idx) {
               active.ws.send(`turtle.${tokens[0]}()`);
-              getReply();
+              await getReply();
             }
           }
           break;
