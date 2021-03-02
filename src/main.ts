@@ -57,7 +57,7 @@ wss.on("connection", (ws) => {
     }
     io.prompt();
     ws.once("close", () => {
-      turtles.filter((turtle) => turtle.name !== name);
+      turtles = turtles.filter((turtle) => turtle.name !== name);
       if (active !== null && active.name === name) {
         active = null;
         io.setPrompt(`> `);
