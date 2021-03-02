@@ -46,7 +46,7 @@ wss.on("connection", (ws) => {
     turtles.push(t);
     io.write(`\nTurtle ${name} connected\n`);
     if (active !== null)
-        active = t;
+      active = t;
     ws.once("close", () => {
       turtles.filter((turtle) => turtle.name !== name);
       if (active !== null && active.name === name)
@@ -204,7 +204,6 @@ async function commandLoop(): Promise<void> {
         // world interaction (dig, tunnel, place, drop, attack, suck, inspect)
         case "dig":
         case "place":
-        case "drop":  // TODO: add count to drop
         case "attack":
         case "suck": {
           if (tokens.length !== 1 && tokens.length !== 2) {
@@ -226,6 +225,68 @@ async function commandLoop(): Promise<void> {
               }
               case "down": {
                 active.ws.send(`turtle.${tokens[0]}Down()`);
+                break;
+              }
+              default: {
+                io.write(`invalid up/down modifier: ${tokens[1]}\n`);
+                continue;
+              }
+            }
+          }
+          break;
+        }
+        case "drop": {
+
+          if (tokens.length !== 1 && tokens.length !== 2 && tokens.length !== 3) {
+            io.write("drop expects zero, one, two arguments\n");
+            continue;
+          }
+          if (active === null) {
+            io.write("drop expects an active turtle\n");
+            continue;
+          }
+
+          if (tokens.length === 1) {
+            active.ws.send("turtle.drop()");
+          } else {
+            switch (tokens[1]) {
+              case "up": {
+                if (tokens.length === 2) {
+                  active.ws.send("turtle.dropUp()");
+                } else {
+                  const count = Number.parseInt(tokens[2]);
+                  if (isNaN(count)) {
+                    io.write(`invalid count '${tokens[2]}'`);
+                    continue;
+                  }
+                  active.ws.send(`turtle.dropUp(${count})`);
+                }
+                break;
+              }
+              case "down": {
+                if (tokens.length === 2) {
+                  active.ws.send("turtle.dropDown()");
+                } else {
+                  const count = Number.parseInt(tokens[2]);
+                  if (isNaN(count)) {
+                    io.write(`invalid count '${tokens[2]}'`);
+                    continue;
+                  }
+                  active.ws.send(`turtle.dropDown(${count})`);
+                }
+                break;
+              }
+              case "forward": {
+                if (tokens.length === 2) {
+                  active.ws.send("turtle.drop()");
+                } else {
+                  const count = Number.parseInt(tokens[2]);
+                  if (isNaN(count)) {
+                    io.write(`invalid count '${tokens[2]}'`);
+                    continue;
+                  }
+                  active.ws.send(`turtle.drop(${count})`);
+                }
                 break;
               }
               default: {
@@ -491,7 +552,7 @@ async function commandLoop(): Promise<void> {
           io.write("forward|back|up|down [n]\n\tmove in given direction n or one blocks\n");
           io.write("left|right\n\tturn in given direction\n");
           io.write("dig|place|attack|suck [up|down]\n\tinteract with the world in the given direction, or forwards, if none given\n");
-          io.write("drop [up|down]\n\tdrop items from inventory in given direction, or forwards, if none given\n");
+          io.write("drop [up|down|forward] [count]\n\tdrop count (or whole stack of) items from inventory in given direction, or forwards, if none given\n");
           io.write("inspect [up|down]\n\tget information about the world in the given direction, or forwards, if none given\n");
           io.write("tunnel <n> [up|down]\n\tdig an n-long tunnel in the given direction, or forwards, if none given\n");
           io.write("inventory\n\tdisplay information about turtle inventory\n");
