@@ -462,9 +462,9 @@ async function commandLoop(): Promise<void> {
             break;
           }
 
-          const count = Number.parseInt(tokens[2]);
+          const count = Number.parseInt(tokens[1]);
           if (isNaN(count)) {
-            process.stdout.write(`invalid count '${tokens[2]}'\n`);
+            process.stdout.write(`invalid count '${tokens[1]}'\n`);
             continue;
           }
 
