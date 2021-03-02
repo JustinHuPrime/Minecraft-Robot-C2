@@ -87,9 +87,15 @@ async function commandLoop(): Promise<void> {
           for (let idx = 1; idx <= 16; ++idx) {
             active.ws.send(`return turtle.getItemDetail(${idx})`);
             if (selected === idx)
-              io.write(`* ${await getReply()}`);
+              io.write("*");
             else
-              io.write(`  ${await getReply()}`);
+              io.write(" ");
+            if (idx < 10)
+              io.write(` ${idx}: `);
+            else
+              io.write(`${idx}: `);
+
+            io.write(`${await getReply()}\n`);
           }
           break;
         }
