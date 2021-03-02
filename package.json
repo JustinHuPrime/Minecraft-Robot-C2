@@ -5,7 +5,8 @@
   "main": "src/main.js",
   "scripts": {
     "build": "tsc",
-    "start": "node src/main.js"
+    "start": "node src/main.js",
+    "update": "git pull; tsc"
   },
   "repository": {
     "type": "git",
