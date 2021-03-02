@@ -128,7 +128,7 @@ async function commandLoop(): Promise<void> {
 
           const count = Number.parseInt(tokens[1]);
           if (isNaN(count)) {
-            io.write(`invalid count '${tokens[1]}'`);
+            io.write(`invalid count '${tokens[1]}'\n`);
             continue;
           }
 
@@ -192,7 +192,7 @@ async function commandLoop(): Promise<void> {
                 break;
               }
               default: {
-                io.write(`invalid up/down modifier: ${tokens[1]}`);
+                io.write(`invalid up/down modifier: ${tokens[1]}\n`);
                 continue;
               }
             }
@@ -222,7 +222,7 @@ async function commandLoop(): Promise<void> {
                 break;
               }
               default: {
-                io.write(`invalid up/down modifier: ${tokens[1]}`);
+                io.write(`invalid up/down modifier: ${tokens[1]}\n`);
                 continue;
               }
             }
@@ -258,7 +258,7 @@ async function commandLoop(): Promise<void> {
                 break;
               }
               default: {
-                io.write(`invalid up/down modifier: ${tokens[1]}`);
+                io.write(`invalid up/down modifier: ${tokens[1]}\n`);
                 continue;
               }
             }
@@ -305,7 +305,7 @@ async function commandLoop(): Promise<void> {
 
           const slot = Number.parseInt(tokens[1]);
           if (isNaN(slot)) {
-            io.write(`invalid slot '${tokens[1]}'`);
+            io.write(`invalid slot '${tokens[1]}'\n`);
             continue;
           }
 
@@ -326,7 +326,7 @@ async function commandLoop(): Promise<void> {
           const level = Number.parseInt(await getReply());
           active.ws.send("return turtle.getFuelLimit()");
           const limit = Number.parseInt(await getReply());
-          io.write(`Fuel: ${level}/${limit}`);
+          io.write(`Fuel: ${level}/${limit}\n`);
           break;
         }
         case "refuel": {
@@ -346,7 +346,7 @@ async function commandLoop(): Promise<void> {
 
           const count = Number.parseInt(tokens[2]);
           if (isNaN(count)) {
-            io.write(`invalid count '${tokens[2]}'`);
+            io.write(`invalid count '${tokens[2]}'\n`);
             continue;
           }
 
@@ -365,7 +365,7 @@ async function commandLoop(): Promise<void> {
 
           const destination = Number.parseInt(tokens[1]);
           if (isNaN(destination)) {
-            io.write(`invalid slot '${tokens[1]}`);
+            io.write(`invalid slot '${tokens[1]}\n`);
             continue;
           }
 
@@ -376,7 +376,7 @@ async function commandLoop(): Promise<void> {
 
           const count = Number.parseInt(tokens[2]);
           if (isNaN(count)) {
-            io.write(`invalid count '${tokens[2]}'`);
+            io.write(`invalid count '${tokens[2]}'\n`);
             continue;
           }
 
@@ -403,7 +403,7 @@ async function commandLoop(): Promise<void> {
               break;
             }
             default: {
-              io.write(`invalid left/right modifier: ${tokens[1]}`);
+              io.write(`invalid left/right modifier: ${tokens[1]}\n`);
               continue;
             }
           }
@@ -421,7 +421,7 @@ async function commandLoop(): Promise<void> {
 
           const count = Number.parseInt(tokens[2]);
           if (isNaN(count)) {
-            io.write(`invalid count '${tokens[2]}'`);
+            io.write(`invalid count '${tokens[2]}'\n`);
             continue;
           }
 
