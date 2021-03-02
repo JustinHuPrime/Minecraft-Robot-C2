@@ -171,11 +171,11 @@ async function commandLoop(): Promise<void> {
         }
         case "right": {
           if (tokens.length !== 1) {
-            io.write("left expects zero arguments\n");
+            io.write("right expects zero arguments\n");
             continue;
           }
           if (active === null) {
-            io.write("left expects an active turtle\n");
+            io.write("right expects an active turtle\n");
             continue;
           }
 
