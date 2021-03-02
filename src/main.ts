@@ -64,18 +64,32 @@ async function getReply(turtle: Turtle | undefined = undefined): Promise<string>
   });
 }
 
-async function repeat(count: number, command: string): Promise<void> {
-  const t = (active as Turtle);
+function assign(): Turtle {
+  if (active === null)
+    throw new Error("Expected an active turtle");
+
+  const t = active;
   t.status = TurtleStatus.BUSY;
   active = null;
+  return t;
+}
+
+function release(t: Turtle) {
+  t.status = TurtleStatus.IDLE;
+  io.write(`\n${t.name} done task\n`);
+  if (active === null)
+    active = t;
+}
+
+async function repeat(count: number, command: string): Promise<void> {
+  const t = assign();
 
   for (let idx = count; idx > 0; --idx) {
     t.ws.send(command);
     await getReply(t);
   }
 
-  t.status = TurtleStatus.IDLE;
-  io.write(`\n${t.name} done task\n`);
+  release(t);
 }
 
 async function commandLoop(): Promise<void> {
@@ -171,7 +185,7 @@ async function commandLoop(): Promise<void> {
         // world interaction (dig, tunnel, place, drop, attack, suck, inspect)
         case "dig":
         case "place":
-        case "drop":
+        case "drop":  // TODO: add count to drop
         case "attack":
         case "suck": {
           if (tokens.length !== 1 && tokens.length !== 2) {
