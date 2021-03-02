@@ -517,13 +517,18 @@ async function commandLoop(): Promise<void> {
           break;
         }
         case "craft": {
-          if (tokens.length !== 2) {
-            io.write("craft expects one argument\n");
+          if (tokens.length !== 1 && tokens.length !== 2) {
+            io.write("craft expects zero or one arguments\n");
             continue;
           }
           if (active === null) {
             io.write("craft expects an active turtle\n");
             continue;
+          }
+
+          if (tokens.length === 1) {
+            active.ws.send(`turtle.craft()`);
+            break;
           }
 
           const count = Number.parseInt(tokens[1]);
