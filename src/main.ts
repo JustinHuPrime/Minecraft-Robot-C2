@@ -132,6 +132,16 @@ async function commandLoop(): Promise<void> {
           io.write(`${await getReply()}\n`);
           break;
         }
+        case "exit": {
+          if (tokens.length !== 1) {
+            io.write("exit expects no arguments\n");
+            continue;
+          }
+
+          for (const turtle of turtles)
+            turtle.ws.close();
+          return;
+        }
         default: {
           io.write(`no such command ${tokens[0]}\n`);
           continue;
