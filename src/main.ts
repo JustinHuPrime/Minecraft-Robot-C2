@@ -132,9 +132,12 @@ async function commandLoop(): Promise<void> {
             continue;
           }
 
-          for (let idx = count; idx > 0; --idx) {
-            active.ws.send(`turtle.${tokens[0]}()`);
+          if (count > 10) {
+            repeat(count, `turtle.${tokens[0]}()`);
             break;
+          } else {
+            for (let idx = count; idx > 0; --idx)
+              active.ws.send(`turtle.${tokens[0]}()`);
           }
           break;
         }
