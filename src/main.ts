@@ -95,9 +95,9 @@ async function repeat(count: number, command: string): Promise<void> {
 async function commandLoop(): Promise<void> {
   while (true) {
     try {
-      const line: string = await new Promise<string>((resolve, _) => { io.question(active !== null ? `${active.name}> ` : "> ", resolve); });
+      const line: string = (await new Promise<string>((resolve, _) => { io.question(active !== null ? `${active.name}> ` : "> ", resolve); })).trim();
 
-      if (line.trim() === "") continue;
+      if (line === "") continue;
 
       const tokens = line.split(/\s+/);
       switch (tokens[0]) {
