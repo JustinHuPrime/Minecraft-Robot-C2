@@ -26,8 +26,11 @@ const io = Readline.createInterface({ input: process.stdin, output: process.stdo
 
 wss.on("connection", (ws) => {
   ws.once("message", (name: string) => {
-    turtles.push(new Turtle(name, ws));
+    const t = new Turtle(name, ws)
+    turtles.push(t);
     io.write(`\nTurtle ${name} connected\n`);
+    if (active !== null)
+        active = t;
     ws.once("close", () => {
       turtles.filter((turtle) => turtle.name !== name);
       if (active !== null && active.name === name)
