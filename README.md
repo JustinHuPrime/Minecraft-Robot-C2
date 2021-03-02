@@ -2,9 +2,13 @@
 
 A command and control server for ComputerCraft turtles connecting over websockets.
 
+## Invoking
+
+Run `npm start [port]` - if no port is specified, defaults to 8888.
+
 ## Supported Commands
 
-```
+```text
 select <turtle name>
         marks turtle as active turtle
 forward|back|up|down [n]

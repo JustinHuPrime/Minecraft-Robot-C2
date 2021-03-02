@@ -37,7 +37,13 @@ class Turtle {
 let turtles: Turtle[] = [];
 let active: Turtle | null = null;
 
-const wss = new WebSocket.Server({ port: 8888 });
+const port = process.argv[2] ? Number.parseInt(process.argv[2]) : 8888;
+if (isNaN(port) || port < 0 || port > 65535) {
+  console.log(`Not a valid port: ${port}`);
+  process.exit(-1);
+}
+
+const wss = new WebSocket.Server({ port: port });
 const io = Readline.createInterface({ input: process.stdin, output: process.stdout });
 
 wss.on("connection", (ws) => {
