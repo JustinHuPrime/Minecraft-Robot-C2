@@ -50,14 +50,14 @@ wss.on("connection", (ws) => {
   ws.once("message", (name: string) => {
     const t = new Turtle(name, ws)
     turtles.push(t);
-    console.log(`\nTurtle ${name} connected`);
+    io.write(`\nTurtle ${name} connected\n`);
     if (active === null)
       active = t;
     ws.once("close", () => {
       turtles.filter((turtle) => turtle.name !== name);
       if (active !== null && active.name === name)
         active = null;
-        console.log(`\nTurtle ${name} disconnected`);
+      io.write(`\nTurtle ${name} disconnected\n`);
     });
   });
 });
@@ -101,7 +101,7 @@ function assign(): Turtle {
 
 function release(t: Turtle) {
   t.status = TurtleStatus.IDLE;
-  console.log(`\n${t.name} done task`);
+  io.write(`\n${t.name} done task\n`);
   if (active === null)
     active = t;
 }
@@ -129,17 +129,17 @@ async function commandLoop(): Promise<void> {
         // turtle management (select)
         case "select": {
           if (tokens.length !== 2) {
-            console.log("select expects one argument - the name of the turtle to select");
+            io.write("select expects one argument - the name of the turtle to select\n");
             continue;
           }
 
           const selected = turtles.find((turtle) => turtle.name === tokens[1]);
           if (selected === undefined) {
-            console.log(`no such turtle ${tokens[1]}`);
+            io.write(`no such turtle ${tokens[1]}\n`);
             continue;
           }
           if (selected.status === TurtleStatus.BUSY) {
-            console.log("turtle is busy - cannot select");
+            io.write("turtle is busy - cannot select\n");
             continue;
           }
 
@@ -152,11 +152,11 @@ async function commandLoop(): Promise<void> {
         case "up":
         case "down": {
           if (tokens.length !== 1 && tokens.length !== 2) {
-            console.log(`${tokens[0]} expects zero or one arguments`);
+            io.write(`${tokens[0]} expects zero or one arguments\n`);
             continue;
           }
           if (active === null) {
-            console.log(`${tokens[0]} expects an active turtle`);
+            io.write(`${tokens[0]} expects an active turtle\n`);
             continue;
           }
 
@@ -167,7 +167,7 @@ async function commandLoop(): Promise<void> {
 
           const count = Number.parseInt(tokens[1]);
           if (isNaN(count)) {
-            console.log(`invalid count '${tokens[1]}'`);
+            io.write(`invalid count '${tokens[1]}'\n`);
             continue;
           }
 
@@ -183,11 +183,11 @@ async function commandLoop(): Promise<void> {
         }
         case "left": {
           if (tokens.length !== 1) {
-            console.log("left expects zero arguments");
+            io.write("left expects zero arguments\n");
             continue;
           }
           if (active === null) {
-            console.log("left expects an active turtle");
+            io.write("left expects an active turtle\n");
             continue;
           }
 
@@ -196,11 +196,11 @@ async function commandLoop(): Promise<void> {
         }
         case "right": {
           if (tokens.length !== 1) {
-            console.log("right expects zero arguments");
+            io.write("right expects zero arguments\n");
             continue;
           }
           if (active === null) {
-            console.log("right expects an active turtle");
+            io.write("right expects an active turtle\n");
             continue;
           }
 
@@ -213,11 +213,11 @@ async function commandLoop(): Promise<void> {
         case "attack":
         case "suck": {
           if (tokens.length !== 1 && tokens.length !== 2) {
-            console.log(`${tokens[0]} expects zero or one arguments`);
+            io.write(`${tokens[0]} expects zero or one arguments\n`);
             continue;
           }
           if (active === null) {
-            console.log(`${tokens[0]} expects an active turtle`);
+            io.write(`${tokens[0]} expects an active turtle\n`);
             continue;
           }
 
@@ -234,7 +234,7 @@ async function commandLoop(): Promise<void> {
                 break;
               }
               default: {
-                console.log(`invalid up/down modifier: ${tokens[1]}`);
+                io.write(`invalid up/down modifier: ${tokens[1]}\n`);
                 continue;
               }
             }
@@ -244,11 +244,11 @@ async function commandLoop(): Promise<void> {
         case "drop": {
 
           if (tokens.length !== 1 && tokens.length !== 2 && tokens.length !== 3) {
-            console.log("drop expects zero, one, two arguments");
+            io.write("drop expects zero, one, two arguments\n");
             continue;
           }
           if (active === null) {
-            console.log("drop expects an active turtle");
+            io.write("drop expects an active turtle\n");
             continue;
           }
 
@@ -262,7 +262,7 @@ async function commandLoop(): Promise<void> {
                 } else {
                   const count = Number.parseInt(tokens[2]);
                   if (isNaN(count)) {
-                    console.log(`invalid count '${tokens[2]}'`);
+                    io.write(`invalid count '${tokens[2]}'`);
                     continue;
                   }
                   active.ws.send(`turtle.dropUp(${count})`);
@@ -275,7 +275,7 @@ async function commandLoop(): Promise<void> {
                 } else {
                   const count = Number.parseInt(tokens[2]);
                   if (isNaN(count)) {
-                    console.log(`invalid count '${tokens[2]}'`);
+                    io.write(`invalid count '${tokens[2]}'`);
                     continue;
                   }
                   active.ws.send(`turtle.dropDown(${count})`);
@@ -288,7 +288,7 @@ async function commandLoop(): Promise<void> {
                 } else {
                   const count = Number.parseInt(tokens[2]);
                   if (isNaN(count)) {
-                    console.log(`invalid count '${tokens[2]}'`);
+                    io.write(`invalid count '${tokens[2]}'`);
                     continue;
                   }
                   active.ws.send(`turtle.drop(${count})`);
@@ -296,7 +296,7 @@ async function commandLoop(): Promise<void> {
                 break;
               }
               default: {
-                console.log(`invalid up/down modifier: ${tokens[1]}`);
+                io.write(`invalid up/down modifier: ${tokens[1]}\n`);
                 continue;
               }
             }
@@ -305,31 +305,31 @@ async function commandLoop(): Promise<void> {
         }
         case "inspect": {
           if (tokens.length !== 1 && tokens.length !== 2) {
-            console.log("inspect expects zero or one arguments");
+            io.write("inspect expects zero or one arguments\n");
             continue;
           }
           if (active === null) {
-            console.log("inspect expects an active turtle");
+            io.write("inspect expects an active turtle\n");
             continue;
           }
 
           if (tokens.length === 1) {
             active.ws.send("local a, b = turtle.inspect(); return b");
-            console.log(`${await getReply()}`);
+            io.write(`${await getReply()}\n`);
           } else {
             switch (tokens[1]) {
               case "up": {
                 active.ws.send("local a, b = turtle.inspectUp(); return b");
-                console.log(`${await getReply()}`);
+                io.write(`${await getReply()}\n`);
                 break;
               }
               case "down": {
                 active.ws.send("local a, b = turtle.inspectDown(); return b");
-                console.log(`${await getReply()}`);
+                io.write(`${await getReply()}\n`);
                 break;
               }
               default: {
-                console.log(`invalid up/down modifier: ${tokens[1]}`);
+                io.write(`invalid up/down modifier: ${tokens[1]}\n`);
                 continue;
               }
             }
@@ -338,17 +338,17 @@ async function commandLoop(): Promise<void> {
         }
         case "tunnel": {
           if (tokens.length !== 2 && tokens.length !== 3) {
-            console.log("tunnel expects one or two arguments");
+            io.write("tunnel expects one or two arguments\n");
             continue;
           }
           if (active === null) {
-            console.log("tunnel expects an active turtle");
+            io.write("tunnel expects an active turtle\n");
             continue;
           }
 
           const len = Number.parseInt(tokens[1]);
           if (isNaN(len)) {
-            console.log(`invalid tunnel length '${tokens[1]}'`);
+            io.write(`invalid tunnel length '${tokens[1]}'`);
             continue;
           }
 
@@ -365,7 +365,7 @@ async function commandLoop(): Promise<void> {
                 break;
               }
               default: {
-                console.log(`invalid up/down modifier: ${tokens[1]}`);
+                io.write(`invalid up/down modifier: ${tokens[1]}\n`);
                 continue;
               }
             }
@@ -375,11 +375,11 @@ async function commandLoop(): Promise<void> {
         // inventory management (display, select, fuel, refuel, transfer, equip, craft)
         case "inventory": {
           if (tokens.length !== 1) {
-            console.log("inventory expects no arguments");
+            io.write("inventory expects no arguments\n");
             continue;
           }
           if (active === null) {
-            console.log("inventory requires an active turtle");
+            io.write("inventory requires an active turtle\n");
             continue;
           }
 
@@ -388,31 +388,31 @@ async function commandLoop(): Promise<void> {
           for (let idx = 1; idx <= 16; ++idx) {
             active.ws.send(`return turtle.getItemDetail(${idx})`);
             if (selected === idx)
-              console.log("*");
+              io.write("*");
             else
-              console.log(" ");
+              io.write(" ");
             if (idx < 10)
-              console.log(` ${idx}: `);
+              io.write(` ${idx}: `);
             else
-              console.log(`${idx}: `);
+              io.write(`${idx}: `);
 
-            console.log(`${await getReply()}`);
+            io.write(`${await getReply()}\n`);
           }
           break;
         }
         case "slot": {
           if (tokens.length !== 2) {
-            console.log("slot expects one argument");
+            io.write("slot expects one argument\n");
             continue;
           }
           if (active === null) {
-            console.log("slot expects an active turtle");
+            io.write("slot expects an active turtle\n");
             continue;
           }
 
           const slot = Number.parseInt(tokens[1]);
           if (isNaN(slot)) {
-            console.log(`invalid slot '${tokens[1]}'`);
+            io.write(`invalid slot '${tokens[1]}'\n`);
             continue;
           }
 
@@ -421,11 +421,11 @@ async function commandLoop(): Promise<void> {
         }
         case "fuel": {
           if (tokens.length !== 1) {
-            console.log("fuel expects no arguments");
+            io.write("fuel expects no arguments\n");
             continue;
           }
           if (active === null) {
-            console.log("fuel requires an active turtle");
+            io.write("fuel requires an active turtle\n");
             continue;
           }
 
@@ -433,16 +433,16 @@ async function commandLoop(): Promise<void> {
           const level = Number.parseInt(await getReply());
           active.ws.send("return turtle.getFuelLimit()");
           const limit = Number.parseInt(await getReply());
-          console.log(`Fuel: ${level}/${limit}`);
+          io.write(`Fuel: ${level}/${limit}\n`);
           break;
         }
         case "refuel": {
           if (tokens.length !== 1 && tokens.length !== 2) {
-            console.log("refuel expects zero or one arguments");
+            io.write("refuel expects zero or one arguments\n");
             continue;
           }
           if (active === null) {
-            console.log("refuel expects an active turtle");
+            io.write("refuel expects an active turtle\n");
             continue;
           }
 
@@ -453,7 +453,7 @@ async function commandLoop(): Promise<void> {
 
           const count = Number.parseInt(tokens[2]);
           if (isNaN(count)) {
-            console.log(`invalid count '${tokens[2]}'`);
+            io.write(`invalid count '${tokens[2]}'\n`);
             continue;
           }
 
@@ -462,17 +462,17 @@ async function commandLoop(): Promise<void> {
         }
         case "transfer": {
           if (tokens.length !== 2 && tokens.length !== 3) {
-            console.log("transfer expects one or two arguments");
+            io.write("transfer expects one or two arguments\n");
             continue;
           }
           if (active === null) {
-            console.log("transfer expects an active turtle");
+            io.write("transfer expects an active turtle\n");
             continue;
           }
 
           const destination = Number.parseInt(tokens[1]);
           if (isNaN(destination)) {
-            console.log(`invalid slot '${tokens[1]}`);
+            io.write(`invalid slot '${tokens[1]}\n`);
             continue;
           }
 
@@ -483,7 +483,7 @@ async function commandLoop(): Promise<void> {
 
           const count = Number.parseInt(tokens[2]);
           if (isNaN(count)) {
-            console.log(`invalid count '${tokens[2]}'`);
+            io.write(`invalid count '${tokens[2]}'\n`);
             continue;
           }
 
@@ -492,11 +492,11 @@ async function commandLoop(): Promise<void> {
         }
         case "equip": {
           if (tokens.length !== 2) {
-            console.log("equip expects one argument");
+            io.write("equip expects one argument\n");
             continue;
           }
           if (active === null) {
-            console.log("equip expects an active turtle");
+            io.write("equip expects an active turtle\n");
             continue;
           }
 
@@ -510,7 +510,7 @@ async function commandLoop(): Promise<void> {
               break;
             }
             default: {
-              console.log(`invalid left/right modifier: ${tokens[1]}`);
+              io.write(`invalid left/right modifier: ${tokens[1]}\n`);
               continue;
             }
           }
@@ -518,11 +518,11 @@ async function commandLoop(): Promise<void> {
         }
         case "craft": {
           if (tokens.length !== 1 && tokens.length !== 2) {
-            console.log("craft expects zero or one arguments");
+            io.write("craft expects zero or one arguments\n");
             continue;
           }
           if (active === null) {
-            console.log("craft expects an active turtle");
+            io.write("craft expects an active turtle\n");
             continue;
           }
 
@@ -533,7 +533,7 @@ async function commandLoop(): Promise<void> {
 
           const count = Number.parseInt(tokens[1]);
           if (isNaN(count)) {
-            console.log(`invalid count '${tokens[1]}'`);
+            io.write(`invalid count '${tokens[1]}'\n`);
             continue;
           }
 
@@ -543,11 +543,11 @@ async function commandLoop(): Promise<void> {
         // miscellaneous (exec, help, list, exit)
         case "exec": {
           if (tokens.length < 2) {
-            console.log("exec expects a string - the code to execute");
+            io.write("exec expects a string - the code to execute\n");
             continue;
           }
           if (active === null) {
-            console.log("exec requires an active turtle");
+            io.write("exec requires an active turtle\n");
             continue;
           }
 
@@ -555,43 +555,43 @@ async function commandLoop(): Promise<void> {
           const message = (matches as RegExpMatchArray)[1];
 
           active.ws.send(message);
-          console.log(`${await getReply()}`);
+          io.write(`${await getReply()}\n`);
           break;
         }
         case "help": {
-          console.log("select <turtle name>\n\tmarks turtle as active turtle");
-          console.log("forward|back|up|down [n]\n\tmove in given direction n or one blocks");
-          console.log("left|right\n\tturn in given direction");
-          console.log("dig|place|attack|suck [up|down]\n\tinteract with the world in the given direction, or forwards, if none given");
-          console.log("drop [up|down|forward] [count]\n\tdrop count (or whole stack of) items from inventory in given direction, or forwards, if none given");
-          console.log("inspect [up|down]\n\tget information about the world in the given direction, or forwards, if none given");
-          console.log("tunnel <n> [up|down]\n\tdig an n-long tunnel in the given direction, or forwards, if none given");
-          console.log("inventory\n\tdisplay information about turtle inventory");
-          console.log("slot <n>\n\tselect turtle inventory slot n");
-          console.log("fuel\n\tdisplay turtle fuel status");
-          console.log("refuel [limit]\n\trefuel the turtle using at most the given number of items (uses whole stack if none given)");
-          console.log("transfer <destination> [count]\n\ttransfers count (or whole stack if not given) to destination slot");
-          console.log("equip <left|right>\n\tswaps the current slot with the left or right side equipment");
-          console.log("craft [limit]\n\tcrafts up to limit (or as many as possible, if not given) items");
-          console.log("exec <lua code>\n\truns some lua code as the body of a zero-arg function, and prints the return value, if any");
-          console.log("help [args...]\n\tdisplays help text");
-          console.log("list\n\tlists all connected turtles");
-          console.log("exit\n\tgracefully closes connections to turtles and quits the program");
+          io.write("select <turtle name>\n\tmarks turtle as active turtle\n");
+          io.write("forward|back|up|down [n]\n\tmove in given direction n or one blocks\n");
+          io.write("left|right\n\tturn in given direction\n");
+          io.write("dig|place|attack|suck [up|down]\n\tinteract with the world in the given direction, or forwards, if none given\n");
+          io.write("drop [up|down|forward] [count]\n\tdrop count (or whole stack of) items from inventory in given direction, or forwards, if none given\n");
+          io.write("inspect [up|down]\n\tget information about the world in the given direction, or forwards, if none given\n");
+          io.write("tunnel <n> [up|down]\n\tdig an n-long tunnel in the given direction, or forwards, if none given\n");
+          io.write("inventory\n\tdisplay information about turtle inventory\n");
+          io.write("slot <n>\n\tselect turtle inventory slot n\n");
+          io.write("fuel\n\tdisplay turtle fuel status\n");
+          io.write("refuel [limit]\n\trefuel the turtle using at most the given number of items (uses whole stack if none given)\n");
+          io.write("transfer <destination> [count]\n\ttransfers count (or whole stack if not given) to destination slot\n");
+          io.write("equip <left|right>\n\tswaps the current slot with the left or right side equipment\n");
+          io.write("craft [limit]\n\tcrafts up to limit (or as many as possible, if not given) items\n");
+          io.write("exec <lua code>\n\truns some lua code as the body of a zero-arg function, and prints the return value, if any\n");
+          io.write("help [args...]\n\tdisplays help text\n");
+          io.write("list\n\tlists all connected turtles\n");
+          io.write("exit\n\tgracefully closes connections to turtles and quits the program\n");
           break;
         }
         case "list": {
           for (const turtle of turtles) {
             if (turtle === active)
-              console.log("*");
+              io.write("*");
             else
-              console.log(" ");
-            console.log(` ${turtle.name} (${turtle.status === TurtleStatus.BUSY ? "BUSY" : "IDLE"})`);
+              io.write(" ");
+            io.write(` ${turtle.name} (${turtle.status === TurtleStatus.BUSY ? "BUSY" : "IDLE"})\n`);
           }
           break;
         }
         case "exit": {
           if (tokens.length !== 1) {
-            console.log("exit expects no arguments");
+            io.write("exit expects no arguments\n");
             continue;
           }
 
@@ -601,12 +601,12 @@ async function commandLoop(): Promise<void> {
           process.exit(0);
         }
         default: {
-          console.log(`no such command ${tokens[0]}`);
+          io.write(`no such command ${tokens[0]}\n`);
           continue;
         }
       }
     } catch (e) {
-      console.log(`${e}`);
+      io.write(`${e}\n`);
     }
   }
 }
