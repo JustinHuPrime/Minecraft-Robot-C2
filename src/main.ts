@@ -27,7 +27,7 @@ const io = Readline.createInterface({ input: process.stdin, output: process.stdo
 wss.on("connection", (ws) => {
   ws.once("message", (name: string) => {
     turtles.push(new Turtle(name, ws));
-    io.write(`Turtle ${name} connected`);
+    io.write(`\nTurtle ${name} connected\n`);
   });
 });
 
@@ -41,13 +41,13 @@ async function commandLoop(): Promise<void> {
     switch (tokens[0]) {
       case "select": {
         if (tokens.length !== 2) {
-          io.write("select expects one argument - the name of the turtle to select");
+          io.write("select expects one argument - the name of the turtle to select\n");
           continue;
         }
 
         const selected: Turtle | undefined = turtles.find((turtle) => turtle.name === tokens[1]);
         if (selected === undefined) {
-          io.write(`no such turtle ${tokens[1]}`);
+          io.write(`no such turtle ${tokens[1]}\n`);
           continue;
         }
 
@@ -56,11 +56,11 @@ async function commandLoop(): Promise<void> {
       }
       case "exec": {
         if (tokens.length < 2) {
-          io.write("exec expects a string - the code to execute");
+          io.write("exec expects a string - the code to execute\n");
           continue;
         }
         if (active === null) {
-          io.write("exec requires an active turtle");
+          io.write("exec requires an active turtle\n");
           continue;
         }
 
@@ -68,14 +68,15 @@ async function commandLoop(): Promise<void> {
         const message = (matches as RegExpMatchArray)[1];
 
         active.ws.send(message);
-        io.write(await new Promise<string>((resolve, reject) => {
+        const response = await new Promise<string>((resolve, reject) => {
           (active as Turtle).ws.once("error", reject);
           (active as Turtle).ws.once("message", resolve);
-        }));
+        })
+        io.write(`${response}\n`);
         break;
       }
       default: {
-        io.write(`no such command ${tokens[0]}`);
+        io.write(`no such command ${tokens[0]}\n`);
         continue;
       }
     }
