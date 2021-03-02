@@ -38,7 +38,7 @@ wss.on("connection", (ws) => {
 });
 
 async function getReply(turtle: Turtle | undefined = undefined): Promise<string> {
-  if (active === null)
+  if (turtle === undefined && active === null)
     return Promise.reject(new Error("no selected turtle"));
 
   return new Promise<string>((resolve, reject) => {
@@ -71,7 +71,7 @@ async function repeat(count: number, command: string): Promise<void> {
 
   for (let idx = count; idx > 0; --idx) {
     t.ws.send(command);
-    getReply(t);
+    await getReply(t);
   }
 }
 
