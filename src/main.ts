@@ -73,6 +73,9 @@ async function repeat(count: number, command: string): Promise<void> {
     t.ws.send(command);
     await getReply(t);
   }
+
+  t.status = TurtleStatus.IDLE;
+  io.write(`\n${t.name} done task\n`);
 }
 
 async function commandLoop(): Promise<void> {
@@ -97,7 +100,7 @@ async function commandLoop(): Promise<void> {
             continue;
           }
           if (selected.status === TurtleStatus.BUSY) {
-            io.write("turtle is busy - cannot select");
+            io.write("turtle is busy - cannot select\n");
             continue;
           }
 
