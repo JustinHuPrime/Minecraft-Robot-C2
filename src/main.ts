@@ -577,6 +577,7 @@ async function commandLoop(): Promise<void> {
           process.stdout.write("drop [up|down|forward] [count]\n\tdrop count (or whole stack of) items from inventory in given direction, or forwards, if none given\n");
           process.stdout.write("inspect [up|down]\n\tget information about the world in the given direction, or forwards, if none given\n");
           process.stdout.write("tunnel <n> [up|down]\n\tdig an n-long tunnel in the given direction, or forwards, if none given\n");
+          process.stdout.write("prospect <n> <pattern>\n\tdig an n-long tunnel forwards, stopping if any block exposed by the tunnel matches the given pattern\n");
           process.stdout.write("inventory\n\tdisplay information about turtle inventory\n");
           process.stdout.write("slot <n>\n\tselect turtle inventory slot n\n");
           process.stdout.write("fuel\n\tdisplay turtle fuel status\n");

@@ -23,6 +23,8 @@ inspect [up|down]
         get information about the world in the given direction, or forwards, if none given
 tunnel <n> [up|down]
         dig an n-long tunnel in the given direction, or forwards, if none given
+prospect <n> <pattern>
+        dig an n-long tunnel forwards, stopping if any block exposed by the tunnel matches the given pattern
 inventory
         display information about turtle inventory
 slot <n>
