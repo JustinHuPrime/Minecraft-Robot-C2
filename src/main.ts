@@ -408,31 +408,31 @@ async function commandLoop(): Promise<void> {
 
               // left
               t.ws.send("turtle.left(); local a, b = turtle.inspectUp(); turtle.right(); return b");
-              if ((await getReply()).includes(resource)) {
+              if ((await getReply(t)).includes(resource)) {
                 process.stdout.write(`\n${t.name} found ${resource}\n`);
                 break;
               }
               // right
               t.ws.send("turtle.right(); local a, b = turtle.inspectUp(); turtle.left(); return b");
-              if ((await getReply()).includes(resource)) {
+              if ((await getReply(t)).includes(resource)) {
                 process.stdout.write(`\n${t.name} found ${resource}\n`);
                 break;
               }
               // up
               t.ws.send("local a, b = turtle.inspectUp(); return b");
-              if ((await getReply()).includes(resource)) {
+              if ((await getReply(t)).includes(resource)) {
                 process.stdout.write(`\n${t.name} found ${resource}\n`);
                 break;
               }
               // down
               t.ws.send("local a, b = turtle.inspectDown(); return b");
-              if ((await getReply()).includes(resource)) {
+              if ((await getReply(t)).includes(resource)) {
                 process.stdout.write(`\n${t.name} found ${resource}\n`);
                 break;
               }
               // front
               t.ws.send("local a, b = turtle.inspect(); return b");
-              if ((await getReply()).includes(resource)) {
+              if ((await getReply(t)).includes(resource)) {
                 process.stdout.write(`\n${t.name} found ${resource}\n`);
                 break;
               }
