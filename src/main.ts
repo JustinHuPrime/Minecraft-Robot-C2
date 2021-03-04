@@ -253,7 +253,6 @@ async function commandLoop(): Promise<void> {
           break;
         }
         case "drop": {
-
           if (tokens.length !== 1 && tokens.length !== 2 && tokens.length !== 3) {
             process.stdout.write("drop expects zero, one, two arguments\n");
             continue;
@@ -325,17 +324,17 @@ async function commandLoop(): Promise<void> {
           }
 
           if (tokens.length === 1) {
-            active.ws.send("local a, b = turtle.inspect(); return b");
+            active.ws.send("local a, b = turtle.inspect()\nreturn b");
             process.stdout.write(`${await getReply()}\n`);
           } else {
             switch (tokens[1]) {
               case "up": {
-                active.ws.send("local a, b = turtle.inspectUp(); return b");
+                active.ws.send("local a, b = turtle.inspectUp()\nreturn b");
                 process.stdout.write(`${await getReply()}\n`);
                 break;
               }
               case "down": {
-                active.ws.send("local a, b = turtle.inspectDown(); return b");
+                active.ws.send("local a, b = turtle.inspectDown()\nreturn b");
                 process.stdout.write(`${await getReply()}\n`);
                 break;
               }
@@ -364,15 +363,15 @@ async function commandLoop(): Promise<void> {
           }
 
           if (tokens.length === 2) {
-            repeat(len, "turtle.dig(); turtle.forward()");
+            repeat(len, "turtle.dig()\nturtle.forward()");
           } else {
             switch (tokens[2]) {
               case "up": {
-                repeat(len, "turtle.digUp(); turtle.up()");
+                repeat(len, "turtle.digUp()\nturtle.up()");
                 break;
               }
               case "down": {
-                repeat(len, "turtle.digDown(); turtle.down()");
+                repeat(len, "turtle.digDown()\nturtle.down()");
                 break;
               }
               default: {
@@ -381,6 +380,67 @@ async function commandLoop(): Promise<void> {
               }
             }
           }
+          break;
+        }
+        case "prospect": {
+          if (tokens.length !== 3) {
+            process.stdout.write("prospect expects two arguments\n");
+            continue;
+          }
+          if (active === null) {
+            process.stdout.write("prospect expects an active turtle\n");
+            continue;
+          }
+
+          const len = Number.parseInt(tokens[1]);
+          if (isNaN(len)) {
+            process.stdout.write(`invalid prospect limit '${tokens[1]}'`);
+            continue;
+          }
+
+          const resource = tokens[2];
+
+          (async () => {
+            const t = assign();
+
+            for (let idx = 0; idx < len; ++idx) {
+              t.ws.send("turtle.dig()\nturtle.forward()");
+              await getReply(t);
+
+              // left
+              t.ws.send("turtle.turnLeft()\nlocal a, b = turtle.inspect()\nturtle.turnRight()\nreturn b");
+              if ((await getReply(t)).includes(resource)) {
+                process.stdout.write(`\n${t.name} found ${resource}\n`);
+                break;
+              }
+              // right
+              t.ws.send("turtle.turnRight()\nlocal a, b = turtle.inspect()\nturtle.turnLeft()\nreturn b");
+              if ((await getReply(t)).includes(resource)) {
+                process.stdout.write(`\n${t.name} found ${resource}\n`);
+                break;
+              }
+              // up
+              t.ws.send("local a, b = turtle.inspectUp()\nreturn b");
+              if ((await getReply(t)).includes(resource)) {
+                process.stdout.write(`\n${t.name} found ${resource}\n`);
+                break;
+              }
+              // down
+              t.ws.send("local a, b = turtle.inspectDown()\nreturn b");
+              if ((await getReply(t)).includes(resource)) {
+                process.stdout.write(`\n${t.name} found ${resource}\n`);
+                break;
+              }
+              // front
+              t.ws.send("local a, b = turtle.inspect()\nreturn b");
+              if ((await getReply(t)).includes(resource)) {
+                process.stdout.write(`\n${t.name} found ${resource}\n`);
+                break;
+              }
+            }
+
+            release(t);
+          })();
           break;
         }
         // inventory management (display, select, fuel, refuel, transfer, equip, craft)
@@ -577,6 +637,7 @@ async function commandLoop(): Promise<void> {
           process.stdout.write("drop [up|down|forward] [count]\n\tdrop count (or whole stack of) items from inventory in given direction, or forwards, if none given\n");
           process.stdout.write("inspect [up|down]\n\tget information about the world in the given direction, or forwards, if none given\n");
           process.stdout.write("tunnel <n> [up|down]\n\tdig an n-long tunnel in the given direction, or forwards, if none given\n");
+          process.stdout.write("prospect <n> <pattern>\n\tdig an n-long tunnel forwards, stopping if any block exposed by the tunnel matches the given pattern\n");
           process.stdout.write("inventory\n\tdisplay information about turtle inventory\n");
           process.stdout.write("slot <n>\n\tselect turtle inventory slot n\n");
           process.stdout.write("fuel\n\tdisplay turtle fuel status\n");
