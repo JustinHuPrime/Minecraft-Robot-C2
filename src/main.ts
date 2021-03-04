@@ -324,17 +324,17 @@ async function commandLoop(): Promise<void> {
           }
 
           if (tokens.length === 1) {
-            active.ws.send("local a, b = turtle.inspect(); return b");
+            active.ws.send("local a, b = turtle.inspect()\nreturn b");
             process.stdout.write(`${await getReply()}\n`);
           } else {
             switch (tokens[1]) {
               case "up": {
-                active.ws.send("local a, b = turtle.inspectUp(); return b");
+                active.ws.send("local a, b = turtle.inspectUp()\nreturn b");
                 process.stdout.write(`${await getReply()}\n`);
                 break;
               }
               case "down": {
-                active.ws.send("local a, b = turtle.inspectDown(); return b");
+                active.ws.send("local a, b = turtle.inspectDown()\nreturn b");
                 process.stdout.write(`${await getReply()}\n`);
                 break;
               }
@@ -363,15 +363,15 @@ async function commandLoop(): Promise<void> {
           }
 
           if (tokens.length === 2) {
-            repeat(len, "turtle.dig(); turtle.forward()");
+            repeat(len, "turtle.dig()\nturtle.forward()");
           } else {
             switch (tokens[2]) {
               case "up": {
-                repeat(len, "turtle.digUp(); turtle.up()");
+                repeat(len, "turtle.digUp()\nturtle.up()");
                 break;
               }
               case "down": {
-                repeat(len, "turtle.digDown(); turtle.down()");
+                repeat(len, "turtle.digDown()\nturtle.down()");
                 break;
               }
               default: {
@@ -404,34 +404,34 @@ async function commandLoop(): Promise<void> {
             const t = assign();
 
             for (let idx = 0; idx < len; ++idx) {
-              t.ws.send("turtle.dig(); turtle.forward()");
+              t.ws.send("turtle.dig()\nturtle.forward()");
 
               // left
-              t.ws.send("turtle.left(); local a, b = turtle.inspectUp(); turtle.right(); return b");
+              t.ws.send("turtle.left()\nlocal a, b = turtle.inspect()\nturtle.right()\nreturn b");
               if ((await getReply(t)).includes(resource)) {
                 process.stdout.write(`\n${t.name} found ${resource}\n`);
                 break;
               }
               // right
-              t.ws.send("turtle.right(); local a, b = turtle.inspectUp(); turtle.left(); return b");
+              t.ws.send("turtle.right()\nlocal a, b = turtle.inspect()\nturtle.left()\nreturn b");
               if ((await getReply(t)).includes(resource)) {
                 process.stdout.write(`\n${t.name} found ${resource}\n`);
                 break;
               }
               // up
-              t.ws.send("local a, b = turtle.inspectUp(); return b");
+              t.ws.send("local a, b = turtle.inspectUp()\nreturn b");
               if ((await getReply(t)).includes(resource)) {
                 process.stdout.write(`\n${t.name} found ${resource}\n`);
                 break;
               }
               // down
-              t.ws.send("local a, b = turtle.inspectDown(); return b");
+              t.ws.send("local a, b = turtle.inspectDown()\nreturn b");
               if ((await getReply(t)).includes(resource)) {
                 process.stdout.write(`\n${t.name} found ${resource}\n`);
                 break;
               }
               // front
-              t.ws.send("local a, b = turtle.inspect(); return b");
+              t.ws.send("local a, b = turtle.inspect()\nreturn b");
               if ((await getReply(t)).includes(resource)) {
                 process.stdout.write(`\n${t.name} found ${resource}\n`);
                 break;
