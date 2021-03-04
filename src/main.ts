@@ -253,7 +253,6 @@ async function commandLoop(): Promise<void> {
           break;
         }
         case "drop": {
-
           if (tokens.length !== 1 && tokens.length !== 2 && tokens.length !== 3) {
             process.stdout.write("drop expects zero, one, two arguments\n");
             continue;
@@ -381,6 +380,66 @@ async function commandLoop(): Promise<void> {
               }
             }
           }
+          break;
+        }
+        case "prospect": {
+          if (tokens.length !== 3) {
+            process.stdout.write("prospect expects two arguments\n");
+            continue;
+          }
+          if (active === null) {
+            process.stdout.write("prospect expects an active turtle\n");
+            continue;
+          }
+
+          const len = Number.parseInt(tokens[1]);
+          if (isNaN(len)) {
+            process.stdout.write(`invalid prospect limit '${tokens[1]}'`);
+            continue;
+          }
+
+          const resource = tokens[2];
+
+          (async () => {
+            const t = assign();
+
+            for (let idx = 0; idx < len; ++idx) {
+              t.ws.send("turtle.dig(); turtle.forward()");
+
+              // left
+              t.ws.send("turtle.left(); local a, b = turtle.inspectUp(); turtle.right(); return b");
+              if ((await getReply()).includes(resource)) {
+                process.stdout.write(`\n${t.name} found ${resource}\n`);
+                break;
+              }
+              // right
+              t.ws.send("turtle.right(); local a, b = turtle.inspectUp(); turtle.left(); return b");
+              if ((await getReply()).includes(resource)) {
+                process.stdout.write(`\n${t.name} found ${resource}\n`);
+                break;
+              }
+              // up
+              t.ws.send("local a, b = turtle.inspectUp(); return b");
+              if ((await getReply()).includes(resource)) {
+                process.stdout.write(`\n${t.name} found ${resource}\n`);
+                break;
+              }
+              // down
+              t.ws.send("local a, b = turtle.inspectDown(); return b");
+              if ((await getReply()).includes(resource)) {
+                process.stdout.write(`\n${t.name} found ${resource}\n`);
+                break;
+              }
+              // front
+              t.ws.send("local a, b = turtle.inspect(); return b");
+              if ((await getReply()).includes(resource)) {
+                process.stdout.write(`\n${t.name} found ${resource}\n`);
+                break;
+              }
+            }
+
+            release(t);
+          })();
           break;
         }
         // inventory management (display, select, fuel, refuel, transfer, equip, craft)
