@@ -405,6 +405,7 @@ async function commandLoop(): Promise<void> {
 
             for (let idx = 0; idx < len; ++idx) {
               t.ws.send("turtle.dig()\nturtle.forward()");
+              await getReply(t);
 
               // left
               t.ws.send("turtle.turnLeft()\nlocal a, b = turtle.inspect()\nturtle.turnRight()\nreturn b");
