@@ -407,13 +407,13 @@ async function commandLoop(): Promise<void> {
               t.ws.send("turtle.dig()\nturtle.forward()");
 
               // left
-              t.ws.send("turtle.left()\nlocal a, b = turtle.inspect()\nturtle.right()\nreturn b");
+              t.ws.send("turtle.turnLeft()\nlocal a, b = turtle.inspect()\nturtle.turnRight()\nreturn b");
               if ((await getReply(t)).includes(resource)) {
                 process.stdout.write(`\n${t.name} found ${resource}\n`);
                 break;
               }
               // right
-              t.ws.send("turtle.right()\nlocal a, b = turtle.inspect()\nturtle.left()\nreturn b");
+              t.ws.send("turtle.turnRight()\nlocal a, b = turtle.inspect()\nturtle.turnLeft()\nreturn b");
               if ((await getReply(t)).includes(resource)) {
                 process.stdout.write(`\n${t.name} found ${resource}\n`);
                 break;
